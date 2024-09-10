@@ -104,3 +104,5 @@ services:
       - api-2
       - api-3
       - api-4
+    tmpfs:
+      - /var/cache/nginx:size=1024m
