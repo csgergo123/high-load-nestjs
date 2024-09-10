@@ -72,7 +72,7 @@ services:
       - mongodb
 
   mongodb:
-    image: mongo:6.0.11
+    image: mongo:latest
     ports:
       - "27017:27017"
     deploy:
