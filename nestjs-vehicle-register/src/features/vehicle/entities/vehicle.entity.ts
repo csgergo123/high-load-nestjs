@@ -15,15 +15,15 @@ export class Vehicle extends Document {
   uuid: string;
 
   @ApiProperty()
-  @Prop({ required: true, unique: true, index: true })
+  @Prop({ unique: true, index: true })
   rendszam: string;
 
   @ApiProperty()
-  @Prop({ required: true })
+  @Prop()
   tulajdonos: string;
 
   @ApiProperty()
-  @Prop({ required: true })
+  @Prop()
   forgalmi_ervenyes: string;
 
   @ApiProperty()
@@ -32,10 +32,5 @@ export class Vehicle extends Document {
 }
 
 const VehicleSchema = SchemaFactory.createForClass(Vehicle);
-
-VehicleSchema.index(
-  { rendszam: 1, tulajdonos: 1, adatok: 1 },
-  { collation: { locale: 'hu', strength: 2 } },
-);
 
 export { VehicleSchema };
