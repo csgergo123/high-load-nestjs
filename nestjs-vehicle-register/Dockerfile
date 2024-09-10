@@ -1,25 +1,52 @@
-# Build image
-FROM node:18-alpine AS builder
+###################
+# BUILD FOR DEVELOPMENT
+###################
 
-WORKDIR /app
+FROM node:20-alpine As development
 
-COPY package*.json ./
-RUN npm ci --only=production
-RUN npm install -g @nestjs/cli
+WORKDIR /usr/src/app
 
-COPY . .
+COPY --chown=node:node package*.json ./
+
+RUN npm ci
+
+COPY --chown=node:node . .
+
+###################
+# BUILD FOR PRODUCTION
+###################
+
+FROM node:20-alpine As build
+
+WORKDIR /usr/src/app
+
+COPY --chown=node:node package*.json ./
+
+COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modules
+
+COPY --chown=node:node . .
 
 RUN npm run build
 
-# Run image
-FROM node:18-alpine
+ENV NODE_ENV production
 
-WORKDIR /app
+RUN npm ci --only=production && npm cache clean --force
 
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
 
-EXPOSE 3000
+###################
+# PRODUCTION
+###################
 
-CMD ["node", "dist/main"]
+FROM node:20-alpine As production
+
+WORKDIR /usr/src/app
+RUN chown node:node /usr/src/app
+
+USER node
+
+ENV NODE_CONFIG_DIR=/usr/src/app/dist/config
+
+COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+
+CMD [ "node", "dist/main.js" ]
