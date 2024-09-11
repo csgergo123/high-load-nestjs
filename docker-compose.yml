@@ -4,7 +4,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://localhost:5432/vehicles?schema=public
+      DATABASE_URL: postgresql://admin:admin@postgres:5432/vehicles?schema=public&connection_limit=10
       NODE_ENV: development
     deploy:
       resources:
@@ -16,14 +16,15 @@ services:
           memory: 1G
     depends_on:
       - postgres
-    command: bash -c "npx prisma migrate deploy && node dist/main.js"
+    command: >
+      sh -c "npx prisma migrate deploy --preview-feature --schema prisma/schema.prisma && node dist/main.js"
 
   api-2:
     image: nestjs-vehicle-register:latest
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://localhost:5432/vehicles?schema=public
+      DATABASE_URL: postgresql://admin:admin@postgres:5432/vehicles?schema=public&connection_limit=10
       NODE_ENV: development
     deploy:
       resources:
@@ -41,7 +42,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://localhost:5432/vehicles?schema=public
+      DATABASE_URL: postgresql://admin:admin@postgres:5432/vehicles?schema=public&connection_limit=10
       NODE_ENV: development
     deploy:
       resources:
@@ -59,7 +60,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://localhost:5432/vehicles?schema=public
+      DATABASE_URL: postgresql://admin:admin@postgres:5432/vehicles?schema=public&connection_limit=10
       NODE_ENV: development
     deploy:
       resources:
@@ -89,13 +90,22 @@ services:
         reservations:
           cpus: "1.5"
           memory: 3G
-    command: postgres -c 'shared_buffers=1GB' \
-      -c 'work_mem=32MB' \
-      -c 'maintenance_work_mem=512MB' \
-      -c 'effective_cache_size=2.5GB' \
-      -c 'max_connections=200' \
-      -c 'synchronous_commit=off' \
-      -c 'wal_compression=on'
+    command:
+      - postgres
+      - "-c"
+      - "shared_buffers=1GB"
+      - "-c"
+      - "work_mem=32MB"
+      - "-c"
+      - "maintenance_work_mem=512MB"
+      - "-c"
+      - "effective_cache_size=2.5GB"
+      - "-c"
+      - "max_connections=100"
+      - "-c"
+      - "synchronous_commit=off"
+      - "-c"
+      - "wal_compression=on"
     tmpfs:
       - /var/lib/postgresql/data:rw,noexec,nosuid,size=2G
 

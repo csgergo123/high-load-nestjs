@@ -1,11 +1,11 @@
 datasource db {
   provider = "postgres"
   url      = env("DATABASE_URL")
-  poolSize = 10
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 model Vehicle {
