@@ -17,7 +17,7 @@ services:
     depends_on:
       - postgres
     command: >
-      sh -c "npx prisma migrate deploy --preview-feature --schema prisma/schema.prisma && node dist/main.js"
+      sh -c "npx prisma db push --schema prisma/schema.prisma && node dist/main.js"
 
   api-2:
     image: nestjs-vehicle-register:latest
