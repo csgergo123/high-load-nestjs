@@ -4,7 +4,7 @@ services:
     expose:
       - "8080"
     environment:
-      MONGODB_URI: mongodb://mongodb:27017/vehicles
+      DATABASE_URL: postgresql://localhost:5432/vehicles?schema=public
       NODE_ENV: development
     deploy:
       resources:
@@ -15,14 +15,14 @@ services:
           cpus: "0.5"
           memory: 1G
     depends_on:
-      - mongodb
+      - postgres
 
   api-2:
     image: nestjs-vehicle-register:latest
     expose:
       - "8080"
     environment:
-      MONGODB_URI: mongodb://mongodb:27017/vehicles
+      DATABASE_URL: postgresql://localhost:5432/vehicles?schema=public
       NODE_ENV: development
     deploy:
       resources:
@@ -33,14 +33,14 @@ services:
           cpus: "0.5"
           memory: 1G
     depends_on:
-      - mongodb
+      - postgres
 
   api-3:
     image: nestjs-vehicle-register:latest
     expose:
       - "8080"
     environment:
-      MONGODB_URI: mongodb://mongodb:27017/vehicles
+      DATABASE_URL: postgresql://localhost:5432/vehicles?schema=public
       NODE_ENV: development
     deploy:
       resources:
@@ -51,14 +51,14 @@ services:
           cpus: "0.5"
           memory: 1G
     depends_on:
-      - mongodb
+      - postgres
 
   api-4:
     image: nestjs-vehicle-register:latest
     expose:
       - "8080"
     environment:
-      MONGODB_URI: mongodb://mongodb:27017/vehicles
+      DATABASE_URL: postgresql://localhost:5432/vehicles?schema=public
       NODE_ENV: development
     deploy:
       resources:
@@ -69,21 +69,34 @@ services:
           cpus: "0.5"
           memory: 1G
     depends_on:
-      - mongodb
+      - postgres
 
-  mongodb:
-    image: mongo:latest
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: vehicles
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - "27017:27017"
+      - "5432:5432"
     deploy:
       resources:
         limits:
           cpus: "1.5"
-          memory: 2G
+          memory: 3G
         reservations:
           cpus: "1.5"
-          memory: 2G
-    command: mongod --wiredTigerCacheSizeGB 2 --journalCommitInterval 100 --wiredTigerCollectionBlockCompressor snappy
+          memory: 3G
+    command: postgres -c 'shared_buffers=1GB' \
+      -c 'work_mem=32MB' \
+      -c 'maintenance_work_mem=512MB' \
+      -c 'effective_cache_size=2.5GB' \
+      -c 'max_connections=200' \
+      -c 'synchronous_commit=off' \
+      -c 'wal_compression=on'
+    tmpfs:
+      - /var/lib/postgresql/data:rw,noexec,nosuid,size=2G
 
   nginx:
     image: nginx:latest
@@ -95,10 +108,10 @@ services:
       resources:
         limits:
           cpus: "0.5"
-          memory: 2G
+          memory: 0.5G
         reservations:
           cpus: "0.5"
-          memory: 2G
+          memory: 0.5G
     depends_on:
       - api-1
       - api-2

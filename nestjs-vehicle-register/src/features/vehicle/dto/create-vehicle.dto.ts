@@ -1,34 +1,32 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  ArrayNotEmpty,
   ArrayMaxSize,
   IsString,
   IsNotEmpty,
   IsArray,
   IsDateString,
   MaxLength,
-  MinLength,
 } from 'class-validator';
 
 export class CreateVehicleDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'ABC-123' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(20)
   rendszam: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Nagy Géza' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
   tulajdonos: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '2026-06-20' })
   @IsDateString()
   @IsNotEmpty()
   forgalmi_ervenyes: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: ['szín: kék', 'Alvázszám: 123'] })
   @IsArray()
   @ArrayMaxSize(200)
   @IsString({ each: true })

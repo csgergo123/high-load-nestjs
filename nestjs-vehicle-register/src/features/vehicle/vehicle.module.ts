@@ -1,19 +1,11 @@
 import { Module } from '@nestjs/common';
 import { VehicleService } from './services/vehicle.service';
 import { VehicleController } from './controllers/vehicle.controller';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Vehicle, VehicleSchema } from './entities/vehicle.entity';
 import { VehicleRepository } from './repositories/vehicle.repository';
+import { PrismaModule } from 'src/cores/prisma/prisma.module';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      {
-        name: Vehicle.name,
-        schema: VehicleSchema,
-      },
-    ]),
-  ],
+  imports: [PrismaModule],
   controllers: [VehicleController],
   providers: [VehicleService, VehicleRepository],
 })

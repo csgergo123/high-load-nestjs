@@ -1,0 +1,18 @@
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+  poolSize = 10
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Vehicle {
+  uuid             String   @id @default(uuid()) @unique
+  rendszam         String   @unique
+  tulajdonos       String
+  forgalmi_ervenyes String
+  adatok           String[]
+  @@index([rendszam, tulajdonos, adatok])
+}

@@ -1,26 +1,24 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Model } from 'mongoose';
 import { Vehicle } from '../entities/vehicle.entity';
-import { InjectModel } from '@nestjs/mongoose';
-import { CreateVehicleDto } from '../dto/create-vehicle.dto';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from 'src/cores/prisma/services/prisma.service';
 
 @Injectable()
 export class VehicleRepository {
   private logger = new Logger(VehicleRepository.name);
 
-  constructor(
-    @InjectModel(Vehicle.name)
-    private vehicleModel: Model<Vehicle>,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   /** Create a new vehicle.
    *
    * @param createVehicleDto - DTO of the vehicle to create
    * @returns
    */
-  async create(createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
+  async create(createVehicleDto: Prisma.VehicleCreateInput): Promise<Vehicle> {
     try {
-      return this.vehicleModel.create(createVehicleDto);
+      return this.prisma.vehicle.create({
+        data: createVehicleDto,
+      });
     } catch (error) {
       this.logger.error('Error creating vehicle', error);
       throw error;
@@ -33,7 +31,7 @@ export class VehicleRepository {
    */
   async countAll(): Promise<number> {
     try {
-      return await this.vehicleModel.countDocuments();
+      return await this.prisma.vehicle.count();
     } catch (error) {
       this.logger.error('Error counting vehicles', error);
       throw error;
@@ -47,7 +45,9 @@ export class VehicleRepository {
    */
   async findByUuid(uuid: string): Promise<Vehicle> {
     try {
-      return this.vehicleModel.findOne({ uuid }, { _id: 0 }).lean();
+      return this.prisma.vehicle.findUnique({
+        where: { uuid },
+      });
     } catch (error) {
       this.logger.error('Error finding vehicle by uuid', error);
       throw error;
@@ -60,26 +60,12 @@ export class VehicleRepository {
    * @returns
    */
   async findByRendszam(rendszam: string): Promise<Vehicle | null> {
-    return this.vehicleModel.findOne({ rendszam }, { _id: 0 }).lean();
-  }
-
-  /** Find vehicles by text in rendszam, tulajdonos and adatok fields.
-   *
-   * @param text - Text to search for
-   * @returns
-   */
-  async findByText(text: string): Promise<Vehicle[]> {
     try {
-      return this.vehicleModel
-        .find(
-          {
-            $text: { $search: text },
-          },
-          { _id: 0 },
-        )
-        .lean();
+      return this.prisma.vehicle.findUnique({
+        where: { rendszam },
+      });
     } catch (error) {
-      this.logger.error('Error finding vehicle by text', error);
+      this.logger.error('Error finding vehicle by rendszam', error);
       throw error;
     }
   }
@@ -89,24 +75,51 @@ export class VehicleRepository {
    * @param text - Text to search for
    * @returns
    */
-  async findByTextCaseInsensitiveWithRegex(text: string): Promise<Vehicle[]> {
+  async findByText(text: string): Promise<Vehicle[]> {
     try {
-      // Case-insensitive keresés ékezetek megkülönböztetésével
-      const regex = new RegExp(text, 'i'); // 'i' az insensitív kereséshez
-      return await this.vehicleModel
-        .find(
-          {
-            $or: [
-              { rendszam: regex },
-              { tulajdonos: regex },
-              { adatok: regex },
-            ],
-          },
-          { _id: 0 },
-        )
-        .lean();
+      return this.prisma.vehicle.findMany({
+        where: {
+          OR: [
+            {
+              rendszam: {
+                contains: text,
+                mode: 'insensitive',
+              },
+            },
+            {
+              tulajdonos: {
+                contains: text,
+                mode: 'insensitive',
+              },
+            },
+            {
+              adatok: {
+                hasSome: [text],
+              },
+            },
+          ],
+        },
+      });
     } catch (error) {
       this.logger.error('Error finding vehicle by text', error);
+      throw error;
+    }
+  }
+
+  async findByTextWithPlainSQL(text: string): Promise<Vehicle[]> {
+    try {
+      const searchText = `%${text.toLowerCase()}%`;
+      return await this.prisma.$queryRaw<Vehicle[]>`
+        SELECT * FROM "Vehicle"
+        WHERE "rendszam" ILIKE ${searchText}
+        OR "tulajdonos" ILIKE ${searchText}
+        OR EXISTS (
+          SELECT 1 FROM unnest("adatok") AS x
+          WHERE x ILIKE ${searchText}
+        );
+      `;
+    } catch (error) {
+      this.logger.error('Error finding vehicles by text', error);
       throw error;
     }
   }
