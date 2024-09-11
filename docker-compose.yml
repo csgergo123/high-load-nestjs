@@ -4,7 +4,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@postgres:5432/vehicles?schema=public&connection_limit=100
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?schema=public&connection_limit=20
       NODE_ENV: development
     deploy:
       resources:
@@ -24,7 +24,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@postgres:5432/vehicles?schema=public&connection_limit=100
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?schema=public&connection_limit=20
       NODE_ENV: development
     deploy:
       resources:
@@ -42,7 +42,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@postgres:5432/vehicles?schema=public&connection_limit=100
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?schema=public&connection_limit=20
       NODE_ENV: development
     deploy:
       resources:
@@ -60,7 +60,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@postgres:5432/vehicles?schema=public&connection_limit=100
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?schema=public&connection_limit=20
       NODE_ENV: development
     deploy:
       resources:
@@ -93,21 +93,52 @@ services:
     command:
       - postgres
       - "-c"
-      - "shared_buffers=1GB"
+      - "shared_buffers=1.5GB"
+      - "-c"
+      - "wal_buffers=32MB"
       - "-c"
       - "work_mem=32MB"
       - "-c"
       - "maintenance_work_mem=512MB"
       - "-c"
-      - "effective_cache_size=2.5GB"
+      - "effective_cache_size=3GB"
       - "-c"
-      - "max_connections=400"
+      - "max_connections=200"
       - "-c"
       - "synchronous_commit=off"
       - "-c"
       - "wal_compression=on"
+      - "-c"
+      - "checkpoint_timeout=20min"
+      - "-c"
+      - "max_wal_size=4GB"
+      - "-c"
+      - "random_page_cost=1.1"
     tmpfs:
       - /var/lib/postgresql/data:rw,noexec,nosuid,size=2G
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    ports:
+      - "6432:6432"
+    environment:
+      DB_HOST: postgres
+      DB_USER: admin
+      DB_PASSWORD: admin
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 500
+      DEFAULT_POOL_SIZE: 50
+      MIN_POOL_SIZE: 20
+    depends_on:
+      - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 0.5G
+        reservations:
+          cpus: "0.1"
+          memory: 0.5G
 
   nginx:
     image: nginx:latest
@@ -118,10 +149,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "0.4"
           memory: 0.5G
         reservations:
-          cpus: "0.5"
+          cpus: "0.4"
           memory: 0.5G
     depends_on:
       - api-1
