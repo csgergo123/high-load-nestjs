@@ -16,6 +16,7 @@ services:
           memory: 1G
     depends_on:
       - postgres
+    command: bash -c "npx prisma migrate deploy && node dist/main.js"
 
   api-2:
     image: nestjs-vehicle-register:latest

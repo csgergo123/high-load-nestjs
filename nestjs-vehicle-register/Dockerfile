@@ -10,6 +10,9 @@ COPY --chown=node:node package*.json ./
 
 RUN npm ci
 
+# Telepítsd a Prisma CLI-t fejlesztési környezetben
+RUN npm install prisma --save-dev
+
 COPY --chown=node:node . .
 
 ###################
@@ -26,12 +29,14 @@ COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modul
 
 COPY --chown=node:node . .
 
+# Generáld a Prisma kliens kódját
+RUN npx prisma generate
+
 RUN npm run build
 
 ENV NODE_ENV production
 
 RUN npm ci --only=production && npm cache clean --force
-
 
 ###################
 # PRODUCTION
@@ -48,5 +53,8 @@ ENV NODE_CONFIG_DIR=/usr/src/app/dist/config
 
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+
+# Másold át a Prisma fájlokat a futási környezetbe
+COPY --from=build /usr/src/app/prisma ./prisma
 
 CMD [ "node", "dist/main.js" ]
