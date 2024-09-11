@@ -36,6 +36,7 @@ services:
           memory: 1G
     depends_on:
       - postgres
+      - api-1
 
   api-3:
     image: nestjs-vehicle-register:latest
@@ -54,6 +55,7 @@ services:
           memory: 1G
     depends_on:
       - postgres
+      - api-1
 
   api-4:
     image: nestjs-vehicle-register:latest
@@ -72,6 +74,7 @@ services:
           memory: 1G
     depends_on:
       - postgres
+      - api-1
 
   postgres:
     image: postgres:15
