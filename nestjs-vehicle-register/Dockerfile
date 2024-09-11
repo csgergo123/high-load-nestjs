@@ -27,6 +27,9 @@ COPY --chown=node:node package*.json ./
 
 COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modules
 
+# Másold át a Prisma fájlokat
+COPY --chown=node:node prisma ./prisma
+
 COPY --chown=node:node . .
 
 # Generáld a Prisma kliens kódját
