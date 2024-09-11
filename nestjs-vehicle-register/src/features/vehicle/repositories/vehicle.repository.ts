@@ -83,13 +83,11 @@ export class VehicleRepository {
             {
               rendszam: {
                 contains: text,
-                mode: 'insensitive',
               },
             },
             {
               tulajdonos: {
                 contains: text,
-                mode: 'insensitive',
               },
             },
             {

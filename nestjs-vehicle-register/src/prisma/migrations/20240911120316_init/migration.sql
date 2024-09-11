@@ -1,8 +1,11 @@
+-- CreateExtension
+CREATE EXTENSION IF NOT EXISTS "citext" WITH SCHEMA "pg_catalog";
+
 -- CreateTable
 CREATE TABLE "Vehicle" (
     "uuid" TEXT NOT NULL,
-    "rendszam" TEXT NOT NULL,
-    "tulajdonos" TEXT NOT NULL,
+    "rendszam" CITEXT NOT NULL,
+    "tulajdonos" CITEXT NOT NULL,
     "forgalmi_ervenyes" TEXT NOT NULL,
     "adatok" TEXT[],
 

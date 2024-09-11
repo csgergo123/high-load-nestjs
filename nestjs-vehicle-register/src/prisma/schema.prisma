@@ -1,18 +1,20 @@
-datasource db {
-  provider = "postgres"
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
 }
 
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+  extensions = [citext(schema: "pg_catalog")]
+}
+
 model Vehicle {
-  uuid             String   @id @default(uuid()) @unique
-  rendszam         String   @unique
-  tulajdonos       String
+  uuid              String   @id @unique @default(uuid())
+  rendszam          String   @unique @db.Citext
+  tulajdonos        String   @db.Citext
   forgalmi_ervenyes String
-  adatok           String[]
+  adatok            String[]
+
   @@index([rendszam, tulajdonos, adatok])
 }
