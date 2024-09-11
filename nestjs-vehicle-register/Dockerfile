@@ -2,7 +2,7 @@
 # BUILD FOR DEVELOPMENT
 ###################
 
-FROM node:20-alpine As development
+FROM node:20-alpine AS development
 
 WORKDIR /usr/src/app
 
@@ -19,7 +19,7 @@ COPY --chown=node:node . .
 # BUILD FOR PRODUCTION
 ###################
 
-FROM node:20-alpine As build
+FROM node:20-alpine AS build
 
 WORKDIR /usr/src/app
 
@@ -34,7 +34,7 @@ RUN npx prisma generate
 
 RUN npm run build
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 RUN npm ci --only=production && npm cache clean --force
 
@@ -42,7 +42,7 @@ RUN npm ci --only=production && npm cache clean --force
 # PRODUCTION
 ###################
 
-FROM node:20-alpine As production
+FROM node:20-alpine AS production
 
 WORKDIR /usr/src/app
 RUN chown node:node /usr/src/app
