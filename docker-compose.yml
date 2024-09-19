@@ -4,7 +4,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=2&pool_timeout=2
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=20&pool_timeout=0
       DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
       NODE_ENV: development
     deploy:
@@ -25,7 +25,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=2&pool_timeout=2
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=20&pool_timeout=0
       DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
       NODE_ENV: development
     deploy:
@@ -45,7 +45,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=2&pool_timeout=2
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=20&pool_timeout=0
       DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
       NODE_ENV: development
     deploy:
@@ -65,7 +65,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=2&pool_timeout=2
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=20&pool_timeout=0
       DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
       NODE_ENV: development
     deploy:
@@ -131,8 +131,8 @@ services:
     environment:
       - PGBOUNCER_POOL_MODE=transaction
       - PGBOUNCER_MAX_CLIENT_CONN=300
-      - PGBOUNCER_DEFAULT_POOL_SIZE=100
-      - PGBOUNCER_MIN_POOL_SIZE=100
+      - PGBOUNCER_DEFAULT_POOL_SIZE=200
+      - PGBOUNCER_MIN_POOL_SIZE=200
       - PGBOUNCER_IGNORE_STARTUP_PARAMETERS=extra_float_digits
       - POSTGRESQL_HOST=postgres
       - POSTGRESQL_PORT_NUMBER=5432
