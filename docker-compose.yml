@@ -110,7 +110,7 @@ services:
       - "-c"
       - "effective_cache_size=3GB"
       - "-c"
-      - "max_connections=600"
+      - "max_connections=300"
       - "-c"
       - "synchronous_commit=off"
       - "-c"
@@ -130,7 +130,7 @@ services:
       - "6432:6432"
     environment:
       - PGBOUNCER_POOL_MODE=transaction
-      - PGBOUNCER_MAX_CLIENT_CONN=400
+      - PGBOUNCER_MAX_CLIENT_CONN=300
       - PGBOUNCER_DEFAULT_POOL_SIZE=100
       - PGBOUNCER_MIN_POOL_SIZE=20
       - PGBOUNCER_IGNORE_STARTUP_PARAMETERS=extra_float_digits
