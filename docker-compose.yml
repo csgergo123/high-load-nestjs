@@ -4,8 +4,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=5&pool_timeout=0
-      DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?connection_limit=5&pool_timeout=0
       NODE_ENV: development
     deploy:
       resources:
@@ -25,8 +24,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=5&pool_timeout=0
-      DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?connection_limit=5&pool_timeout=0
       NODE_ENV: development
     deploy:
       resources:
@@ -45,8 +43,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=5&pool_timeout=0
-      DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?connection_limit=5&pool_timeout=0
       NODE_ENV: development
     deploy:
       resources:
@@ -65,8 +62,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=5&pool_timeout=0
-      DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?connection_limit=5&pool_timeout=0
       NODE_ENV: development
     deploy:
       resources:
@@ -92,10 +88,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.5"
+          cpus: "2"
           memory: 3G
         reservations:
-          cpus: "1.5"
+          cpus: "2"
           memory: 3G
     command:
       - postgres
@@ -123,33 +119,6 @@ services:
       - "random_page_cost=1.1"
     tmpfs:
       - /var/lib/postgresql/data:rw,noexec,nosuid,size=2G
-
-  pgbouncer:
-    image: bitnami/pgbouncer
-    ports:
-      - "6432:6432"
-    environment:
-      - PGBOUNCER_POOL_MODE=transaction
-      - PGBOUNCER_MAX_CLIENT_CONN=300
-      - PGBOUNCER_DEFAULT_POOL_SIZE=100
-      - PGBOUNCER_MIN_POOL_SIZE=20
-      - PGBOUNCER_IGNORE_STARTUP_PARAMETERS=extra_float_digits
-      - POSTGRESQL_HOST=postgres
-      - POSTGRESQL_PORT_NUMBER=5432
-      - POSTGRESQL_USERNAME=admin
-      - POSTGRESQL_PASSWORD=admin
-      - POSTGRESQL_DATABASE=vehicles
-      - PGBOUNCER_DATABASE=vehicles
-    depends_on:
-      - postgres
-    deploy:
-      resources:
-        limits:
-          cpus: "0.5"
-          memory: 0.5G
-        reservations:
-          cpus: "0.5"
-          memory: 0.5G
 
   nginx:
     image: nginx:latest
