@@ -4,7 +4,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=20&connect_timeout=5
       DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
       NODE_ENV: development
     deploy:
@@ -25,7 +25,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=20&connect_timeout=5
       DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
       NODE_ENV: development
     deploy:
@@ -45,7 +45,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=20&connect_timeout=5
       DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
       NODE_ENV: development
     deploy:
@@ -65,7 +65,7 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=20&connect_timeout=5
       DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
       NODE_ENV: development
     deploy:
@@ -110,7 +110,7 @@ services:
       - "-c"
       - "effective_cache_size=3GB"
       - "-c"
-      - "max_connections=200"
+      - "max_connections=500"
       - "-c"
       - "synchronous_commit=off"
       - "-c"
