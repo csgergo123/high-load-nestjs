@@ -4,10 +4,10 @@ generator client {
 }
 
 datasource db {
-  provider = "postgres"
-  url      = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
-  extensions = [citext(schema: "pg_catalog")]
+  provider    = "postgres"
+  url         = env("DATABASE_URL")
+  directUrl   = env("DIRECT_DATABASE_URL")
+  extensions  = [citext(schema: "pg_catalog")]
 }
 
 model Vehicle {
