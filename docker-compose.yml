@@ -4,16 +4,16 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=10&pool_timeout=0
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=2&pool_timeout=2
       DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
       NODE_ENV: development
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "0.45"
           memory: 1G
         reservations:
-          cpus: "0.5"
+          cpus: "0.45"
           memory: 1G
     depends_on:
       - postgres
@@ -25,16 +25,16 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=10&pool_timeout=0
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=2&pool_timeout=2
       DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
       NODE_ENV: development
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "0.45"
           memory: 1G
         reservations:
-          cpus: "0.5"
+          cpus: "0.45"
           memory: 1G
     depends_on:
       - postgres
@@ -45,16 +45,16 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=10&pool_timeout=0
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=2&pool_timeout=2
       DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
       NODE_ENV: development
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "0.45"
           memory: 1G
         reservations:
-          cpus: "0.5"
+          cpus: "0.45"
           memory: 1G
     depends_on:
       - postgres
@@ -65,16 +65,16 @@ services:
     expose:
       - "8080"
     environment:
-      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=10&pool_timeout=0
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=2&pool_timeout=2
       DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
       NODE_ENV: development
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "0.45"
           memory: 1G
         reservations:
-          cpus: "0.5"
+          cpus: "0.45"
           memory: 1G
     depends_on:
       - postgres
@@ -130,8 +130,8 @@ services:
       - "6432:6432"
     environment:
       - PGBOUNCER_POOL_MODE=transaction
-      - PGBOUNCER_MAX_CLIENT_CONN=600
-      - PGBOUNCER_DEFAULT_POOL_SIZE=200
+      - PGBOUNCER_MAX_CLIENT_CONN=300
+      - PGBOUNCER_DEFAULT_POOL_SIZE=100
       - PGBOUNCER_MIN_POOL_SIZE=20
       - PGBOUNCER_IGNORE_STARTUP_PARAMETERS=extra_float_digits
       - POSTGRESQL_HOST=postgres
@@ -145,10 +145,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "0.3"
           memory: 0.5G
         reservations:
-          cpus: "0.5"
+          cpus: "0.3"
           memory: 0.5G
 
   nginx:
