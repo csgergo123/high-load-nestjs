@@ -10,11 +10,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.45"
-          memory: 1G
+          cpus: "0.2"
+          memory: 0.5G
         reservations:
-          cpus: "0.45"
-          memory: 1G
+          cpus: "0.2"
+          memory: 0.5G
     depends_on:
       - postgres
     command: >
@@ -31,11 +31,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.45"
-          memory: 1G
+          cpus: "0.2"
+          memory: 0.5G
         reservations:
-          cpus: "0.45"
-          memory: 1G
+          cpus: "0.2"
+          memory: 0.5G
     depends_on:
       - postgres
       - api-1
@@ -51,11 +51,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.45"
-          memory: 1G
+          cpus: "0.2"
+          memory: 0.5G
         reservations:
-          cpus: "0.45"
-          memory: 1G
+          cpus: "0.2"
+          memory: 0.5G
     depends_on:
       - postgres
       - api-1
@@ -71,11 +71,91 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.45"
-          memory: 1G
+          cpus: "0.2"
+          memory: 0.5G
         reservations:
-          cpus: "0.45"
-          memory: 1G
+          cpus: "0.2"
+          memory: 0.5G
+    depends_on:
+      - postgres
+      - api-1
+    
+  api-5:
+    image: nestjs-vehicle-register:latest
+    expose:
+      - "8080"
+    environment:
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=2&pool_timeout=2
+      DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
+      NODE_ENV: development
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 0.5G
+        reservations:
+          cpus: "0.2"
+          memory: 0.5G
+    depends_on:
+      - postgres
+      - api-1
+  
+  api-6:
+    image: nestjs-vehicle-register:latest
+    expose:
+      - "8080"
+    environment:
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=2&pool_timeout=2
+      DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
+      NODE_ENV: development
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 0.5G
+        reservations:
+          cpus: "0.2"
+          memory: 0.5G
+    depends_on:
+      - postgres
+      - api-1
+  
+  api-7:
+    image: nestjs-vehicle-register:latest
+    expose:
+      - "8080"
+    environment:
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=2&pool_timeout=2
+      DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
+      NODE_ENV: development
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 0.5G
+        reservations:
+          cpus: "0.2"
+          memory: 0.5G
+    depends_on:
+      - postgres
+      - api-1
+
+  api-8:
+    image: nestjs-vehicle-register:latest
+    expose:
+      - "8080"
+    environment:
+      DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles?pgbouncer=true&connection_limit=2&pool_timeout=2
+      DIRECT_DATABASE_URL: postgresql://admin:admin@pgbouncer:6432/vehicles
+      NODE_ENV: development
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 0.5G
+        reservations:
+          cpus: "0.2"
+          memory: 0.5G
     depends_on:
       - postgres
       - api-1
@@ -92,10 +172,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.5"
+          cpus: "1.7"
           memory: 3G
         reservations:
-          cpus: "1.5"
+          cpus: "1.7"
           memory: 3G
     command:
       - postgres
@@ -170,5 +250,9 @@ services:
       - api-2
       - api-3
       - api-4
+      - api-5
+      - api-6
+      - api-7
+      - api-8
     tmpfs:
-      - /var/cache/nginx:size=1024m
+      - /var/cache/nginx:size=500m
