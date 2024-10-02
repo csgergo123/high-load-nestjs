@@ -1,43 +1,32 @@
-###################
-# BUILD FOR DEVELOPMENT
-###################
-
-FROM oven/bun:latest AS development
-
+# use the official Bun image
+# see all versions at https://hub.docker.com/r/oven/bun/tags
+FROM oven/bun:latest AS base
 WORKDIR /usr/src/app
 
-COPY package*.json ./
-COPY bun.lock* ./
+# install dependencies into temp directory
+# this will cache them and speed up future builds
+FROM base AS install
+RUN mkdir -p /temp/dev
+COPY package.json bun.lockb /temp/dev/
+RUN cd /temp/dev && bun install --frozen-lockfile
 
-RUN bun install
+# install with --production (exclude devDependencies)
+RUN mkdir -p /temp/prod
+COPY package.json bun.lockb /temp/prod/
+RUN cd /temp/prod && bun install --frozen-lockfile --production
 
+# copy node_modules from temp directory
+# then copy all (non-ignored) project files into the image
+FROM base AS prerelease
+COPY --from=install /temp/dev/node_modules node_modules
 COPY . .
 
-###################
-# BUILD FOR PRODUCTION
-###################
+# copy production dependencies and source code into final image
+FROM base AS release
+COPY --from=install /temp/prod/node_modules node_modules
+COPY --from=prerelease /usr/src/app/index.ts .
+COPY --from=prerelease /usr/src/app/package.json .
 
-FROM oven/bun:latest AS build
-
-WORKDIR /usr/src/app
-
-COPY package*.json ./
-COPY bun.lock* ./
-
-COPY --from=development /usr/src/app/node_modules ./node_modules
-
-COPY . .
-
-RUN bun run build
-
-###################
-# PRODUCTION
-###################
-
-FROM oven/bun:latest AS production
-
-WORKDIR /usr/src/app
-COPY --from=build /usr/src/app/node_modules ./node_modules
-COPY --from=build /usr/src/app/dist ./dist
-
-CMD ["bun", "dist/main.js"]
+# run the app
+USER bun
+ENTRYPOINT [ "bun", "run", "index.ts" ]
