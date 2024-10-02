@@ -53,24 +53,6 @@ services:
     depends_on:
       - mongodb
 
-  api-4:
-    image: nestjs-vehicle-register:latest
-    expose:
-      - "8080"
-    environment:
-      MONGODB_URI: mongodb://mongodb:27017/vehicles
-      NODE_ENV: development
-    deploy:
-      resources:
-        limits:
-          cpus: "0.5"
-          memory: 1G
-        reservations:
-          cpus: "0.5"
-          memory: 1G
-    depends_on:
-      - mongodb
-
   mongodb:
     image: mongo:latest
     ports:
@@ -78,10 +60,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.5"
+          cpus: "2"
           memory: 2G
         reservations:
-          cpus: "1.5"
+          cpus: "2"
           memory: 2G
     command: mongod --wiredTigerCacheSizeGB 2 --journalCommitInterval 100 --wiredTigerCollectionBlockCompressor snappy
 
@@ -103,6 +85,5 @@ services:
       - api-1
       - api-2
       - api-3
-      - api-4
     tmpfs:
       - /var/cache/nginx:size=1024m
