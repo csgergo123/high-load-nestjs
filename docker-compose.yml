@@ -1,10 +1,8 @@
 services:
   api-1:
     image: nestjs-vehicle-register:latest
-    expose:
-      - "8080"
     environment:
-      MONGODB_URI: mongodb://mongodb:27017/vehicles
+      MONGODB_URI: mongodb://localhost:27017/vehicles
       NODE_ENV: development
     deploy:
       resources:
@@ -14,15 +12,16 @@ services:
         reservations:
           cpus: "0.5"
           memory: 1G
+    ports:
+      - "8081:8080"
     depends_on:
       - mongodb
+    network_mode: "host"
 
   api-2:
     image: nestjs-vehicle-register:latest
-    expose:
-      - "8080"
     environment:
-      MONGODB_URI: mongodb://mongodb:27017/vehicles
+      MONGODB_URI: mongodb://localhost:27017/vehicles
       NODE_ENV: development
     deploy:
       resources:
@@ -32,15 +31,16 @@ services:
         reservations:
           cpus: "0.5"
           memory: 1G
+    ports:
+      - "8082:8080"
     depends_on:
       - mongodb
+    network_mode: "host"
 
   api-3:
     image: nestjs-vehicle-register:latest
-    expose:
-      - "8080"
     environment:
-      MONGODB_URI: mongodb://mongodb:27017/vehicles
+      MONGODB_URI: mongodb://localhost:27017/vehicles
       NODE_ENV: development
     deploy:
       resources:
@@ -50,13 +50,14 @@ services:
         reservations:
           cpus: "0.5"
           memory: 1G
+    ports:
+      - "8083:8080"
     depends_on:
       - mongodb
+    network_mode: "host"
 
   mongodb:
     image: mongo:latest
-    ports:
-      - "27017:27017"
     deploy:
       resources:
         limits:
@@ -66,11 +67,10 @@ services:
           cpus: "2"
           memory: 2G
     command: mongod --wiredTigerCacheSizeGB 2 --journalCommitInterval 100 --wiredTigerCollectionBlockCompressor snappy
+    network_mode: "host"
 
   nginx:
     image: nginx:latest
-    ports:
-      - "8080:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     deploy:
@@ -87,3 +87,4 @@ services:
       - api-3
     tmpfs:
       - /var/cache/nginx:size=1024m
+    network_mode: "host"
