@@ -2,51 +2,42 @@
 # BUILD FOR DEVELOPMENT
 ###################
 
-FROM node:20-alpine AS development
+FROM oven/bun:latest AS development
 
 WORKDIR /usr/src/app
 
-COPY --chown=node:node package*.json ./
+COPY package*.json ./
+COPY bun.lock* ./
 
-RUN npm ci
+RUN bun install
 
-COPY --chown=node:node . .
+COPY . .
 
 ###################
 # BUILD FOR PRODUCTION
 ###################
 
-FROM node:20-alpine AS build
+FROM oven/bun:latest AS build
 
 WORKDIR /usr/src/app
 
-COPY --chown=node:node package*.json ./
+COPY package*.json ./
+COPY bun.lock* ./
 
-COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modules
+COPY --from=development /usr/src/app/node_modules ./node_modules
 
-COPY --chown=node:node . .
+COPY . .
 
-RUN npm run build
-
-ENV NODE_ENV production
-
-RUN npm ci --only=production && npm cache clean --force
-
+RUN bun run build
 
 ###################
 # PRODUCTION
 ###################
 
-FROM node:20-alpine AS production
+FROM oven/bun:latest AS production
 
 WORKDIR /usr/src/app
-RUN chown node:node /usr/src/app
+COPY --from=build /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/src/app/dist ./dist
 
-USER node
-
-ENV NODE_CONFIG_DIR=/usr/src/app/dist/config
-
-COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node --from=build /usr/src/app/dist ./dist
-
-CMD [ "node", "dist/main.js" ]
+CMD ["bun", "dist/main.js"]
