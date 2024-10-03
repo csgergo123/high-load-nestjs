@@ -31,6 +31,10 @@ export class VehicleController {
   ) {
     try {
       const vehicle = await this.vehicleService.create(createVehicleDto);
+      if (!vehicle) {
+        return res.status(400).send();
+      }
+      delete vehicle._id;
       // Store the vehicle in the cache
       await this.cacheManager.set(vehicle.uuid, vehicle, 1600);
       res.status(201).header('Location', `/jarmuvek/${vehicle.uuid}`).send();
