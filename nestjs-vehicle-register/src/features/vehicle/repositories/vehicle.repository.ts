@@ -22,8 +22,8 @@ export class VehicleRepository {
     try {
       // Remove the _id field from the returned document
       const vehicle = await this.vehicleModel.create(createVehicleDto);
-      const vehicleObject = vehicle.toObject(); // Átalakítja a dokumentumot egy sima JavaScript objektummá
-      delete vehicleObject._id; // Törli az _id tulajdonságot
+      const vehicleObject = vehicle.toObject();
+      delete vehicleObject._id;
 
       return vehicleObject;
     } catch (error) {

@@ -32,10 +32,13 @@ export class VehicleController {
     try {
       const vehicle = await this.vehicleService.create(createVehicleDto);
       if (!vehicle) {
+        console.debug('Vehicle not created');
         return res.status(400).send();
       }
-      delete vehicle._id;
       // Store the vehicle in the cache
+      console.log(
+        `Vehicle stored in cache: ${vehicle.uuid} - ${vehicle.rendszam}`,
+      );
       await this.cacheManager.set(vehicle.uuid, vehicle, 1600);
       res.status(201).header('Location', `/jarmuvek/${vehicle.uuid}`).send();
     } catch (error) {
@@ -63,12 +66,13 @@ export class VehicleController {
       res.status(404).send();
     }
 
-    // const vehicle = await this.vehicleService.findByUuid(uuid);
-    // if (vehicle) {
-    //   res.status(200).send(vehicle);
-    // } else {
-    //   res.status(404).send();
-    // }
+    const vehicle = await this.vehicleService.findByUuid(uuid);
+    if (vehicle) {
+      console.log('Vehicle found in DB');
+      res.status(200).send(vehicle);
+    } else {
+      res.status(404).send();
+    }
   }
 
   @Get('jarmuvek')
