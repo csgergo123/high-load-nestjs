@@ -159,10 +159,17 @@ export class VehicleRepository {
     try {
       this.logger.debug(`Searching for vehicles by text: ${text}`);
 
+      // Kötőjel escape-elése. Duplán kell exceape-elni, mert az első a regex miatt kell.
+      const escapedText = text.replace(/-/g, ' ');
+      console.log(
+        '🚀 ~ VehicleRepository ~ findByText ~ escapedText:',
+        escapedText,
+      );
+
       const rawRecords = (await this.redis.call(
         'FT.SEARCH',
         'vehicleIdx',
-        text,
+        escapedText,
       )) as any[];
 
       this.logger.debug(`Found ${rawRecords.length} vehicles`, rawRecords);
