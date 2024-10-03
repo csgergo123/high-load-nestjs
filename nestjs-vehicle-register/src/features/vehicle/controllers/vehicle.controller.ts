@@ -1,3 +1,4 @@
+import { Response } from 'express';
 import {
   Controller,
   Get,
@@ -10,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { VehicleService } from '../services/vehicle.service';
 import { CreateVehicleDto } from '../dto/create-vehicle.dto';
-import { FastifyReply } from 'fastify';
 
 @Controller()
 export class VehicleController {
@@ -19,7 +19,7 @@ export class VehicleController {
   @Post('jarmuvek')
   async create(
     @Body() createVehicleDto: CreateVehicleDto,
-    @Res() res: FastifyReply,
+    @Res() res: Response,
   ) {
     try {
       const vehicle = await this.vehicleService.create(createVehicleDto);
@@ -33,7 +33,7 @@ export class VehicleController {
   }
 
   @Get('kereses')
-  async findByText(@Query('q') text: string, @Res() res: FastifyReply) {
+  async findByText(@Query('q') text: string, @Res() res: Response) {
     if (!text) {
       return res
         .status(HttpStatus.BAD_REQUEST)
@@ -44,7 +44,7 @@ export class VehicleController {
   }
 
   @Get('jarmuvek/:uuid')
-  async findByUuid(@Param('uuid') uuid: string, @Res() res: FastifyReply) {
+  async findByUuid(@Param('uuid') uuid: string, @Res() res: Response) {
     const vehicle = await this.vehicleService.findByUuid(uuid);
     if (vehicle) {
       res.status(HttpStatus.OK).send(vehicle);
@@ -54,7 +54,7 @@ export class VehicleController {
   }
 
   @Get('jarmuvek')
-  async countAll(@Res() res: FastifyReply) {
+  async countAll(@Res() res: Response) {
     const count = await this.vehicleService.countAll();
     res
       .status(HttpStatus.OK)
