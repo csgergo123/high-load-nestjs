@@ -1,3 +1,4 @@
+import * as removeAccents from 'remove-accents';
 import { Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Vehicle } from '../entities/vehicle.entity';
@@ -21,10 +22,7 @@ export class VehicleRepository {
   async create(createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
     try {
       // Remove the _id field from the returned document
-      const vehicle = await this.vehicleModel.create({
-        ...createVehicleDto,
-        searchText: `${createVehicleDto.rendszam} ${createVehicleDto.tulajdonos} ${createVehicleDto.adatok.join(' ')}`,
-      });
+      const vehicle = await this.vehicleModel.create(createVehicleDto);
       const vehicleObject = vehicle.toObject();
       delete vehicleObject._id;
       delete vehicleObject.searchText;
@@ -129,13 +127,13 @@ export class VehicleRepository {
    * @returns
    */
   async findByTextInSearchTextField(text: string): Promise<Vehicle[]> {
+    const normalizedText = removeAccents(text).toLowerCase();
     try {
       // Case-insensitive keresés ékezetek megkülönböztetésével
-      const regex = new RegExp(text, 'i'); // 'i' az insensitív kereséshez
       return this.vehicleModel
         .find(
           {
-            searchText: { $regex: regex },
+            searchText: { $regex: normalizedText },
           },
           { _id: 0, searchText: 0 },
         )
