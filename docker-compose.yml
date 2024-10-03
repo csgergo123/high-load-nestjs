@@ -3,7 +3,8 @@ services:
     image: nestjs-vehicle-register:latest
     environment:
       MONGODB_URI: mongodb://localhost:27017/vehicles
-      NODE_ENV: development
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
       PORT: 8081
     deploy:
       resources:
@@ -21,7 +22,8 @@ services:
     image: nestjs-vehicle-register:latest
     environment:
       MONGODB_URI: mongodb://localhost:27017/vehicles
-      NODE_ENV: development
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
       PORT: 8082
     deploy:
       resources:
@@ -39,7 +41,8 @@ services:
     image: nestjs-vehicle-register:latest
     environment:
       MONGODB_URI: mongodb://localhost:27017/vehicles
-      NODE_ENV: development
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
       PORT: 8083
     deploy:
       resources:
