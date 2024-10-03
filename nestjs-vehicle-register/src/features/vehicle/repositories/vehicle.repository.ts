@@ -53,21 +53,17 @@ export class VehicleRepository {
    */
   async create(createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
     const uuid = uuidv4();
+    const key = `vehicle:${uuid}`;
+    const vehicleData = {
+      uuid: uuid,
+      rendszam: createVehicleDto.rendszam,
+      tulajdonos: createVehicleDto.tulajdonos,
+      forgalmi_ervenyes: createVehicleDto.forgalmi_ervenyes,
+      adatok: JSON.stringify(createVehicleDto.adatok),
+    };
+
     try {
-      const key = `vehicle:${uuid}`;
-      await this.redis.hset(
-        key,
-        'uuid',
-        uuid,
-        'rendszam',
-        createVehicleDto.rendszam,
-        'tulajdonos',
-        createVehicleDto.tulajdonos,
-        'forgalmi_ervenyes',
-        createVehicleDto.forgalmi_ervenyes,
-        'adatok',
-        JSON.stringify(createVehicleDto.adatok),
-      );
+      await this.redis.hset(key, vehicleData);
       return {
         uuid,
         rendszam: createVehicleDto.rendszam,
@@ -161,10 +157,6 @@ export class VehicleRepository {
 
       // Kötőjel escape-elése. Duplán kell exceape-elni, mert az első a regex miatt kell.
       const escapedText = text.replace(/-/g, ' ');
-      console.log(
-        '🚀 ~ VehicleRepository ~ findByText ~ escapedText:',
-        escapedText,
-      );
 
       const rawRecords = (await this.redis.call(
         'FT.SEARCH',
@@ -172,14 +164,11 @@ export class VehicleRepository {
         escapedText,
       )) as any[];
 
-      this.logger.debug(`Found ${rawRecords.length} vehicles`, rawRecords);
-
       const vehicles: Vehicle[] = [];
 
       // Skip the first element (record count), process the results
       for (let i = 1; i < rawRecords.length; i += 2) {
         const fields = rawRecords[i + 1];
-        console.log('🚀 ~ VehicleRepository ~ findByText ~ fields:', fields);
 
         // Mapping fields into Vehicle object
         const vehicle: Vehicle = {
