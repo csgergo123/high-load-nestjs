@@ -85,3 +85,15 @@ services:
     tmpfs:
       - /var/cache/nginx:size=1024m
     network_mode: "host"
+
+  redis:
+    image: redis:3.2.11
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 1G
+    network_mode: "host"
