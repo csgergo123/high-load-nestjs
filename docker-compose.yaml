@@ -3,7 +3,8 @@ services:
     image: csipkes-gergo-nestjs-vehicle-register:latest
     environment:
       MONGODB_URI: mongodb://localhost:27017/vehicles
-      NODE_ENV: development
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
       PORT: 8081
     deploy:
       resources:
@@ -21,7 +22,8 @@ services:
     image: csipkes-gergo-nestjs-vehicle-register:latest
     environment:
       MONGODB_URI: mongodb://localhost:27017/vehicles
-      NODE_ENV: development
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
       PORT: 8082
     deploy:
       resources:
@@ -39,7 +41,8 @@ services:
     image: csipkes-gergo-nestjs-vehicle-register:latest
     environment:
       MONGODB_URI: mongodb://localhost:27017/vehicles
-      NODE_ENV: development
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
       PORT: 8083
     deploy:
       resources:
@@ -84,4 +87,16 @@ services:
       - api-3
     tmpfs:
       - /var/cache/nginx:size=1024m
+    network_mode: "host"
+
+  redis:
+    image: redis:latest
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 1G
     network_mode: "host"

@@ -20,7 +20,12 @@ export class VehicleRepository {
    */
   async create(createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
     try {
-      return this.vehicleModel.create(createVehicleDto);
+      // Remove the _id field from the returned document
+      const vehicle = await this.vehicleModel.create(createVehicleDto);
+      const vehicleObject = vehicle.toObject(); // Átalakítja a dokumentumot egy sima JavaScript objektummá
+      delete vehicleObject._id; // Törli az _id tulajdonságot
+
+      return vehicleObject;
     } catch (error) {
       this.logger.error('Error creating vehicle', error);
       throw error;
