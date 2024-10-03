@@ -7,6 +7,13 @@ export class VehicleService {
   constructor(private readonly vehicleRepository: VehicleRepository) {}
 
   async create(createVehicleDto: CreateVehicleDto) {
+    const foundByRendszam = await this.vehicleRepository.findByRendszam(
+      createVehicleDto.rendszam,
+    );
+    if (foundByRendszam) {
+      throw new Error('Ez a rendszám már létezik!');
+    }
+
     return this.vehicleRepository.create(createVehicleDto);
   }
 

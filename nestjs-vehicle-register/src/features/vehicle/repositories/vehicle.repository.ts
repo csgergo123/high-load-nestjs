@@ -21,32 +21,28 @@ export class VehicleRepository {
       await this.redis.call('FT.INFO', 'vehicleIdx');
       this.logger.log('Index already exists, skipping creation.');
     } catch (error) {
-      if (error.message.includes('Unknown Index name')) {
-        this.logger.log('Index does not exist, creating...');
-        await this.redis.call(
-          'FT.CREATE',
-          'vehicleIdx',
-          'ON',
-          'HASH',
-          'PREFIX',
-          '1',
-          'vehicle:',
-          'SCHEMA',
-          'uuid',
-          'TEXT',
-          'rendszam',
-          'TEXT',
-          'tulajdonos',
-          'TEXT',
-          'forgalmi_ervenyes',
-          'TEXT',
-          'adatok',
-          'TEXT',
-        );
-        console.log('Index created successfully.');
-      } else {
-        throw error;
-      }
+      this.logger.log('Index does not exist, creating...');
+      await this.redis.call(
+        'FT.CREATE',
+        'vehicleIdx',
+        'ON',
+        'HASH',
+        'PREFIX',
+        '1',
+        'vehicle:',
+        'SCHEMA',
+        'uuid',
+        'TEXT',
+        'rendszam',
+        'TEXT',
+        'tulajdonos',
+        'TEXT',
+        'forgalmi_ervenyes',
+        'TEXT',
+        'adatok',
+        'TEXT',
+      );
+      console.log('Index created successfully.');
     }
   }
 
@@ -129,7 +125,29 @@ export class VehicleRepository {
    * @returns
    */
   async findByRendszam(rendszam: string): Promise<Vehicle | null> {
-    throw new Error('Method not implemented.');
+    try {
+      const rawRecords = (await this.redis.call(
+        'FT.SEARCH',
+        'vehicleIdx',
+        `@rendszam:${rendszam}`,
+      )) as any[];
+
+      if (rawRecords.length === 1) {
+        return null;
+      }
+
+      const fields = rawRecords[1];
+      return {
+        uuid: fields[1],
+        rendszam: fields[3],
+        tulajdonos: fields[5],
+        forgalmi_ervenyes: fields[7],
+        adatok: JSON.parse(fields[9]),
+      };
+    } catch (error) {
+      this.logger.error('Error finding vehicle by rendszam', error);
+      throw error;
+    }
   }
 
   /** Find vehicles by text in rendszam, tulajdonos and adatok fields.
