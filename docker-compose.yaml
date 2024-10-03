@@ -2,7 +2,6 @@ services:
   api-1:
     image: csipkes-gergo-nestjs-vehicle-register:latest
     environment:
-      MONGODB_URI: mongodb://localhost:27017/vehicles
       REDIS_HOST: localhost
       REDIS_PORT: 6379
       PORT: 8081
@@ -15,13 +14,12 @@ services:
           cpus: "0.5"
           memory: 1G
     depends_on:
-      - mongodb
+      - redis-stack
     network_mode: "host"
 
   api-2:
     image: csipkes-gergo-nestjs-vehicle-register:latest
     environment:
-      MONGODB_URI: mongodb://localhost:27017/vehicles
       REDIS_HOST: localhost
       REDIS_PORT: 6379
       PORT: 8082
@@ -34,13 +32,12 @@ services:
           cpus: "0.5"
           memory: 1G
     depends_on:
-      - mongodb
+      - redis-stack
     network_mode: "host"
 
   api-3:
     image: csipkes-gergo-nestjs-vehicle-register:latest
     environment:
-      MONGODB_URI: mongodb://localhost:27017/vehicles
       REDIS_HOST: localhost
       REDIS_PORT: 6379
       PORT: 8083
@@ -53,20 +50,19 @@ services:
           cpus: "0.5"
           memory: 1G
     depends_on:
-      - mongodb
+      - redis-stack
     network_mode: "host"
 
-  mongodb:
-    image: mongo:latest
+  redis-stack:
+    image: redis/redis-stack:latest
     deploy:
       resources:
         limits:
-          cpus: "2"
-          memory: 3G
+          cpus: "1"
+          memory: 2G
         reservations:
-          cpus: "2"
-          memory: 3G
-    command: mongod --wiredTigerCacheSizeGB 3 --journalCommitInterval 100 --wiredTigerCollectionBlockCompressor snappy
+          cpus: "1"
+          memory: 2G
     network_mode: "host"
 
   nginx:
@@ -87,16 +83,4 @@ services:
       - api-3
     tmpfs:
       - /var/cache/nginx:size=1024m
-    network_mode: "host"
-
-  redis:
-    image: redis:latest
-    deploy:
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: 1G
-        reservations:
-          cpus: "0.2"
-          memory: 1G
     network_mode: "host"

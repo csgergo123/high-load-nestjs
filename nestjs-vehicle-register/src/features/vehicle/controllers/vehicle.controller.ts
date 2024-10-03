@@ -1,4 +1,4 @@
-import { Cache } from 'cache-manager';
+import { FastifyReply } from 'fastify';
 import {
   Controller,
   Get,
@@ -12,16 +12,10 @@ import {
 } from '@nestjs/common';
 import { VehicleService } from '../services/vehicle.service';
 import { CreateVehicleDto } from '../dto/create-vehicle.dto';
-import { FastifyReply } from 'fastify';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Vehicle } from '../entities/vehicle.entity';
 
 @Controller()
 export class VehicleController {
-  constructor(
-    private readonly vehicleService: VehicleService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
-  ) {}
+  constructor(private readonly vehicleService: VehicleService) {}
 
   private logger = new Logger(VehicleController.name);
 
@@ -32,7 +26,6 @@ export class VehicleController {
   ) {
     try {
       const vehicle = await this.vehicleService.create(createVehicleDto);
-      await this.cacheManager.set(vehicle.uuid, vehicle, { ttl: 1800 });
       res.status(201).header('Location', `/jarmuvek/${vehicle.uuid}`).send();
     } catch (error) {
       res.status(400).send({ message: error.message });
@@ -50,14 +43,8 @@ export class VehicleController {
 
   @Get('jarmuvek/:uuid')
   async findByUuid(@Param('uuid') uuid: string, @Res() res: FastifyReply) {
-    const cachedVehicle = await this.cacheManager.get<Vehicle>(uuid);
-    if (cachedVehicle) {
-      return res.status(200).send(cachedVehicle);
-    }
-
     const vehicle = await this.vehicleService.findByUuid(uuid);
     if (vehicle) {
-      await this.cacheManager.set(vehicle.uuid, vehicle, { ttl: 1800 });
       res.status(200).send(vehicle);
     } else {
       res.status(404).send();

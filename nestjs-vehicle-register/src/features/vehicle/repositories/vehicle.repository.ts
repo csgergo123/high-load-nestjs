@@ -1,17 +1,54 @@
+import Redis from 'ioredis';
+import { v4 as uuidv4 } from 'uuid';
 import { Injectable, Logger } from '@nestjs/common';
-import { Model } from 'mongoose';
 import { Vehicle } from '../entities/vehicle.entity';
-import { InjectModel } from '@nestjs/mongoose';
 import { CreateVehicleDto } from '../dto/create-vehicle.dto';
+import { InjectRedis } from '@nestjs-modules/ioredis';
 
 @Injectable()
 export class VehicleRepository {
   private logger = new Logger(VehicleRepository.name);
 
-  constructor(
-    @InjectModel(Vehicle.name)
-    private vehicleModel: Model<Vehicle>,
-  ) {}
+  constructor(@InjectRedis() private readonly redis: Redis) {}
+
+  async onModuleInit() {
+    await this.createIndex();
+  }
+
+  async createIndex() {
+    try {
+      // Ellenőrizzük, hogy létezik-e az index
+      await this.redis.call('FT.INFO', 'vehicleIdx');
+      this.logger.log('Index already exists, skipping creation.');
+    } catch (error) {
+      if (error.message.includes('Unknown Index name')) {
+        this.logger.log('Index does not exist, creating...');
+        await this.redis.call(
+          'FT.CREATE',
+          'vehicleIdx',
+          'ON',
+          'HASH',
+          'PREFIX',
+          '1',
+          'vehicle:',
+          'SCHEMA',
+          'uuid',
+          'TEXT',
+          'rendszam',
+          'TEXT',
+          'tulajdonos',
+          'TEXT',
+          'forgalmi_ervenyes',
+          'TEXT',
+          'adatok',
+          'TEXT',
+        );
+        console.log('Index created successfully.');
+      } else {
+        throw error;
+      }
+    }
+  }
 
   /** Create a new vehicle.
    *
@@ -19,15 +56,31 @@ export class VehicleRepository {
    * @returns
    */
   async create(createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
+    const uuid = uuidv4();
     try {
-      // Remove the _id field from the returned document
-      const vehicle = await this.vehicleModel.create(createVehicleDto);
-      const vehicleObject = vehicle.toObject();
-      delete vehicleObject._id;
-      delete vehicleObject.searchText;
-
-      return vehicleObject;
+      const key = `vehicle:${uuid}`;
+      await this.redis.hset(
+        key,
+        'uuid',
+        uuid,
+        'rendszam',
+        createVehicleDto.rendszam,
+        'tulajdonos',
+        createVehicleDto.tulajdonos,
+        'forgalmi_ervenyes',
+        createVehicleDto.forgalmi_ervenyes,
+        'adatok',
+        JSON.stringify(createVehicleDto.adatok),
+      );
+      return {
+        uuid,
+        rendszam: createVehicleDto.rendszam,
+        tulajdonos: createVehicleDto.tulajdonos,
+        forgalmi_ervenyes: createVehicleDto.forgalmi_ervenyes,
+        adatok: createVehicleDto.adatok,
+      };
     } catch (error) {
+      this.logger.error('Error creating vehicle', error);
       throw error;
     }
   }
@@ -38,7 +91,7 @@ export class VehicleRepository {
    */
   async countAll(): Promise<number> {
     try {
-      return await this.vehicleModel.countDocuments();
+      return this.redis.dbsize();
     } catch (error) {
       this.logger.error('Error counting vehicles', error);
       throw error;
@@ -52,9 +105,18 @@ export class VehicleRepository {
    */
   async findByUuid(uuid: string): Promise<Vehicle> {
     try {
-      return this.vehicleModel
-        .findOne({ uuid }, { _id: 0, searchText: 0 })
-        .lean();
+      const records = await this.redis.hgetall(`vehicle:${uuid}`);
+      const record =
+        records && Object.keys(records).length > 0 ? records : null;
+      return record
+        ? {
+            uuid: record.uuid,
+            rendszam: record.rendszam,
+            tulajdonos: record.tulajdonos,
+            forgalmi_ervenyes: record.forgalmi_ervenyes,
+            adatok: JSON.parse(record.adatok),
+          }
+        : null;
     } catch (error) {
       this.logger.error('Error finding vehicle by uuid', error);
       throw error;
@@ -67,9 +129,7 @@ export class VehicleRepository {
    * @returns
    */
   async findByRendszam(rendszam: string): Promise<Vehicle | null> {
-    return this.vehicleModel
-      .findOne({ rendszam }, { _id: 0, searchText: 0 })
-      .lean();
+    throw new Error('Method not implemented.');
   }
 
   /** Find vehicles by text in rendszam, tulajdonos and adatok fields.
@@ -79,64 +139,36 @@ export class VehicleRepository {
    */
   async findByText(text: string): Promise<Vehicle[]> {
     try {
-      return this.vehicleModel
-        .find(
-          {
-            $text: { $search: text },
-          },
-          { _id: 0, searchText: 0 },
-        )
-        .lean();
-    } catch (error) {
-      this.logger.error('Error finding vehicle by text', error);
-      throw error;
-    }
-  }
+      this.logger.debug(`Searching for vehicles by text: ${text}`);
 
-  /** Find vehicles by text in rendszam, tulajdonos and adatok fields.
-   *
-   * @param text - Text to search for
-   * @returns
-   */
-  async findByTextCaseInsensitiveWithRegex(text: string): Promise<Vehicle[]> {
-    try {
-      // Case-insensitive keresés ékezetek megkülönböztetésével
-      const regex = new RegExp(text, 'i'); // 'i' az insensitív kereséshez
-      return await this.vehicleModel
-        .find(
-          {
-            $or: [
-              { rendszam: regex },
-              { tulajdonos: regex },
-              { adatok: regex },
-            ],
-          },
-          { _id: 0, searchText: 0 },
-        )
-        .lean();
-    } catch (error) {
-      this.logger.error('Error finding vehicle by text', error);
-      throw error;
-    }
-  }
+      const rawRecords = (await this.redis.call(
+        'FT.SEARCH',
+        'vehicleIdx',
+        text,
+      )) as any[];
 
-  /** Find vehicles by text in rendszam, tulajdonos and adatok fields.
-   *
-   * @param text - Text to search for
-   * @returns
-   */
-  async findByTextInSearchTextField(text: string): Promise<Vehicle[]> {
-    const normalizedText = text.toLowerCase();
-    try {
-      // Case-insensitive keresés ékezetek megkülönböztetésével
-      return this.vehicleModel
-        .find(
-          {
-            searchText: { $regex: normalizedText },
-          },
-          { _id: 0, searchText: 0 },
-        )
-        .lean();
+      this.logger.debug(`Found ${rawRecords.length} vehicles`, rawRecords);
+
+      const vehicles: Vehicle[] = [];
+
+      // Skip the first element (record count), process the results
+      for (let i = 1; i < rawRecords.length; i += 2) {
+        const fields = rawRecords[i + 1];
+        console.log('🚀 ~ VehicleRepository ~ findByText ~ fields:', fields);
+
+        // Mapping fields into Vehicle object
+        const vehicle: Vehicle = {
+          uuid: fields[1],
+          rendszam: fields[3],
+          tulajdonos: fields[5],
+          forgalmi_ervenyes: fields[7],
+          adatok: JSON.parse(fields[9]),
+        };
+
+        vehicles.push(vehicle);
+      }
+
+      return vehicles;
     } catch (error) {
       this.logger.error('Error finding vehicle by text', error);
       throw error;

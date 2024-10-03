@@ -1,13 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  ArrayNotEmpty,
   ArrayMaxSize,
   IsString,
   IsNotEmpty,
   IsArray,
   IsDateString,
   MaxLength,
-  MinLength,
 } from 'class-validator';
 
 export class CreateVehicleDto {
