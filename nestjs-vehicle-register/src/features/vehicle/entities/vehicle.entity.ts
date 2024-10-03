@@ -1,4 +1,3 @@
-import * as removeAccents from 'remove-accents';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document, Types as MongooseTypes } from 'mongoose';
@@ -39,9 +38,7 @@ export class Vehicle extends Document {
 const VehicleSchema = SchemaFactory.createForClass(Vehicle);
 
 VehicleSchema.pre('save', function (next) {
-  this.searchText = removeAccents(
-    `${this.rendszam.toLowerCase()} ${this.tulajdonos.toLowerCase()} ${this.adatok.join(' ').toLowerCase()}`,
-  );
+  this.searchText = `${this.rendszam.toLowerCase()} ${this.tulajdonos.toLowerCase()} ${this.adatok.join(' ').toLowerCase()}`;
   next();
 });
 

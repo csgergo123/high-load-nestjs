@@ -1,4 +1,3 @@
-import * as removeAccents from 'remove-accents';
 import { Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Vehicle } from '../entities/vehicle.entity';
@@ -127,7 +126,7 @@ export class VehicleRepository {
    * @returns
    */
   async findByTextInSearchTextField(text: string): Promise<Vehicle[]> {
-    const normalizedText = removeAccents(text).toLowerCase();
+    const normalizedText = text.toLowerCase();
     try {
       // Case-insensitive keresés ékezetek megkülönböztetésével
       return this.vehicleModel
