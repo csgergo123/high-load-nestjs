@@ -29,6 +29,10 @@ export class Vehicle extends Document {
   @ApiProperty()
   @Prop({ type: [String] })
   adatok: string[];
+
+  // Készítünk egy új mezőt, amibe elmentjük a rendszam, tulajdonos és adatok mezők értékét egybe, hogy könnyebben lehessen rájuk keresni.
+  @Prop({ index: true })
+  searchText: string;
 }
 
 const VehicleSchema = SchemaFactory.createForClass(Vehicle);

@@ -19,6 +19,6 @@ export class VehicleService {
   }
 
   findByText(text: string) {
-    return this.vehicleRepository.findByTextCaseInsensitiveWithRegex(text);
+    return this.vehicleRepository.findByTextInSearchTextField(text);
   }
 }

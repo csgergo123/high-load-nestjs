@@ -21,9 +21,13 @@ export class VehicleRepository {
   async create(createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
     try {
       // Remove the _id field from the returned document
-      const vehicle = await this.vehicleModel.create(createVehicleDto);
-      const vehicleObject = vehicle.toObject(); // Átalakítja a dokumentumot egy sima JavaScript objektummá
-      delete vehicleObject._id; // Törli az _id tulajdonságot
+      const vehicle = await this.vehicleModel.create({
+        ...createVehicleDto,
+        searchText: `${createVehicleDto.rendszam} ${createVehicleDto.tulajdonos} ${createVehicleDto.adatok.join(' ')}`,
+      });
+      const vehicleObject = vehicle.toObject();
+      delete vehicleObject._id;
+      delete vehicleObject.searchText;
 
       return vehicleObject;
     } catch (error) {
@@ -51,7 +55,9 @@ export class VehicleRepository {
    */
   async findByUuid(uuid: string): Promise<Vehicle> {
     try {
-      return this.vehicleModel.findOne({ uuid }, { _id: 0 }).lean();
+      return this.vehicleModel
+        .findOne({ uuid }, { _id: 0, searchText: 0 })
+        .lean();
     } catch (error) {
       this.logger.error('Error finding vehicle by uuid', error);
       throw error;
@@ -64,7 +70,9 @@ export class VehicleRepository {
    * @returns
    */
   async findByRendszam(rendszam: string): Promise<Vehicle | null> {
-    return this.vehicleModel.findOne({ rendszam }, { _id: 0 }).lean();
+    return this.vehicleModel
+      .findOne({ rendszam }, { _id: 0, searchText: 0 })
+      .lean();
   }
 
   /** Find vehicles by text in rendszam, tulajdonos and adatok fields.
@@ -79,7 +87,7 @@ export class VehicleRepository {
           {
             $text: { $search: text },
           },
-          { _id: 0 },
+          { _id: 0, searchText: 0 },
         )
         .lean();
     } catch (error) {
@@ -106,7 +114,30 @@ export class VehicleRepository {
               { adatok: regex },
             ],
           },
-          { _id: 0 },
+          { _id: 0, searchText: 0 },
+        )
+        .lean();
+    } catch (error) {
+      this.logger.error('Error finding vehicle by text', error);
+      throw error;
+    }
+  }
+
+  /** Find vehicles by text in rendszam, tulajdonos and adatok fields.
+   *
+   * @param text - Text to search for
+   * @returns
+   */
+  async findByTextInSearchTextField(text: string): Promise<Vehicle[]> {
+    try {
+      // Case-insensitive keresés ékezetek megkülönböztetésével
+      const regex = new RegExp(text, 'i'); // 'i' az insensitív kereséshez
+      return this.vehicleModel
+        .find(
+          {
+            searchText: { $regex: regex },
+          },
+          { _id: 0, searchText: 0 },
         )
         .lean();
     } catch (error) {
