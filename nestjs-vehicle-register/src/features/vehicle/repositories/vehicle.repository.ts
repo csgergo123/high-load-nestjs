@@ -27,7 +27,6 @@ export class VehicleRepository {
 
       return vehicleObject;
     } catch (error) {
-      this.logger.error('Error creating vehicle', error);
       throw error;
     }
   }
