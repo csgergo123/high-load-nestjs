@@ -1,8 +1,8 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 // import { LoggerMiddleware } from 'src/common/middlewares/logger.middleware';
-import { DatabaseModule } from 'src/cores/database/database.module';
-import { VehicleModule } from 'src/features/vehicle/vehicle.module';
+import { DatabaseModule } from './cores/database/database.module';
+import { VehicleModule } from './features/vehicle/vehicle.module';
 
 @Module({
   imports: [
