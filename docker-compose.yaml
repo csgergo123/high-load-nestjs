@@ -1,6 +1,6 @@
 services:
   api-1:
-    image: nestjs-vehicle-register:latest
+    image: csipkes-gergo-nestjs-vehicle-register:latest
     environment:
       MONGODB_URI: mongodb://localhost:27017/vehicles
       NODE_ENV: development
@@ -18,7 +18,7 @@ services:
     network_mode: "host"
 
   api-2:
-    image: nestjs-vehicle-register:latest
+    image: csipkes-gergo-nestjs-vehicle-register:latest
     environment:
       MONGODB_URI: mongodb://localhost:27017/vehicles
       NODE_ENV: development
@@ -36,7 +36,7 @@ services:
     network_mode: "host"
 
   api-3:
-    image: nestjs-vehicle-register:latest
+    image: csipkes-gergo-nestjs-vehicle-register:latest
     environment:
       MONGODB_URI: mongodb://localhost:27017/vehicles
       NODE_ENV: development
@@ -59,11 +59,11 @@ services:
       resources:
         limits:
           cpus: "2"
-          memory: 2G
+          memory: 3G
         reservations:
           cpus: "2"
-          memory: 2G
-    command: mongod --wiredTigerCacheSizeGB 2 --journalCommitInterval 100 --wiredTigerCollectionBlockCompressor snappy
+          memory: 3G
+    command: mongod --wiredTigerCacheSizeGB 3 --journalCommitInterval 100 --wiredTigerCollectionBlockCompressor snappy
     network_mode: "host"
 
   nginx:
