@@ -39,7 +39,7 @@ export class VehicleController {
       console.log(
         `Vehicle stored in cache: ${vehicle.uuid} - ${vehicle.rendszam}`,
       );
-      await this.cacheManager.set(vehicle.uuid, vehicle, 1600);
+      await this.cacheManager.set(vehicle.uuid, vehicle, 1800000);
       res.status(201).header('Location', `/jarmuvek/${vehicle.uuid}`).send();
     } catch (error) {
       console.error(error);
