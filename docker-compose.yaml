@@ -67,8 +67,7 @@ services:
           cpus: "2"
           memory: 3G
     command: mongod --wiredTigerCacheSizeGB 3 --journalCommitInterval 100 --wiredTigerCollectionBlockCompressor snappy
-    ports:
-      - "27017:27017"
+    network_mode: "host"
 
   nginx:
     image: nginx:latest
@@ -88,8 +87,7 @@ services:
       - api-3
     tmpfs:
       - /var/cache/nginx:size=1024m
-    ports:
-      - "8080:80"
+    network_mode: "host"
 
   redis:
     image: redis:latest
@@ -101,5 +99,4 @@ services:
         reservations:
           cpus: "0.2"
           memory: 1G
-    ports:
-      - "6379:6379"
+    network_mode: "host"
