@@ -57,7 +57,7 @@ services:
     network_mode: "host"
 
   mongodb:
-    image: mongo:4.2
+    image: mongo:latest
     deploy:
       resources:
         limits:
