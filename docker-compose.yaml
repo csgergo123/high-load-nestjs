@@ -100,13 +100,22 @@ services:
           cpus: "0.5"
           memory: 1G
     network_mode: "host"
-    command: redis-server \
-      --maxmemory 1g \
-      --appendonly yes \
-      --appendfilename "appendonly.aof" \
-      --tcp-backlog 511 \
-      --tcp-keepalive 60 \
-      --maxclients 20000
+    command:
+      [
+        "redis-server",
+        "--maxmemory",
+        "1g",
+        "--appendonly",
+        "yes",
+        "--appendfilename",
+        "appendonly.aof",
+        "--tcp-backlog",
+        "511",
+        "--tcp-keepalive",
+        "60",
+        "--maxclients",
+        "20000",
+      ]
 
   nginx:
     image: nginx:latest
