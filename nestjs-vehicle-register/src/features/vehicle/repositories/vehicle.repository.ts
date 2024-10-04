@@ -115,12 +115,12 @@ export class VehicleRepository {
     }
   }
 
-  /** Find vehicle by rendszam.
+  /** Find is rendszam occupied.
    *
    * @param rendszam - Rendszám of the vehicle
    * @returns
    */
-  async findByRendszam(rendszam: string): Promise<Vehicle | null> {
+  async isRendszamOccupied(rendszam: string): Promise<boolean> {
     // Kötőjel escape-elése. Duplán kell exceape-elni, mert az első a regex miatt kell.
     const escapedRendszam = rendszam.replace(/-/g, ' ');
 
@@ -135,14 +135,7 @@ export class VehicleRepository {
         return null;
       }
 
-      const fields = rawRecords[1];
-      return {
-        uuid: fields[1],
-        rendszam: fields[3],
-        tulajdonos: fields[5],
-        forgalmi_ervenyes: fields[7],
-        adatok: JSON.parse(fields[9]),
-      };
+      return true;
     } catch (error) {
       this.logger.error('Error finding vehicle by rendszam', error);
       throw error;
@@ -169,20 +162,37 @@ export class VehicleRepository {
 
       const vehicles: Vehicle[] = [];
 
-      // Skip the first element (record count), process the results
+      // Skip the first element (record count)
       for (let i = 1; i < rawRecords.length; i += 2) {
         const fields = rawRecords[i + 1];
+        const vehicle: Partial<Vehicle> = {};
 
-        // Mapping fields into Vehicle object
-        const vehicle: Vehicle = {
-          uuid: fields[1],
-          rendszam: fields[3],
-          tulajdonos: fields[5],
-          forgalmi_ervenyes: fields[7],
-          adatok: JSON.parse(fields[9]),
-        };
+        // Iterate over the fields and map them to the Vehicle object
+        for (let j = 0; j < fields.length; j += 2) {
+          const fieldName = fields[j];
+          const fieldValue = fields[j + 1];
 
-        vehicles.push(vehicle);
+          switch (fieldName) {
+            case 'uuid':
+              vehicle.uuid = fieldValue;
+              break;
+            case 'rendszam':
+              vehicle.rendszam = fieldValue;
+              break;
+            case 'tulajdonos':
+              vehicle.tulajdonos = fieldValue;
+              break;
+            case 'forgalmi_ervenyes':
+              vehicle.forgalmi_ervenyes = fieldValue;
+              break;
+            case 'adatok':
+              vehicle.adatok = JSON.parse(fieldValue); // Parse adatok as JSON
+              break;
+          }
+        }
+
+        // Add the vehicle to the results if all fields are valid
+        vehicles.push(vehicle as Vehicle);
       }
 
       return vehicles;

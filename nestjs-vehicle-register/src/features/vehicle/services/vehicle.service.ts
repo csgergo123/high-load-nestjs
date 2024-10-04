@@ -7,7 +7,7 @@ export class VehicleService {
   constructor(private readonly vehicleRepository: VehicleRepository) {}
 
   async create(createVehicleDto: CreateVehicleDto) {
-    const foundByRendszam = await this.vehicleRepository.findByRendszam(
+    const foundByRendszam = await this.vehicleRepository.isRendszamOccupied(
       createVehicleDto.rendszam,
     );
     if (foundByRendszam) {
