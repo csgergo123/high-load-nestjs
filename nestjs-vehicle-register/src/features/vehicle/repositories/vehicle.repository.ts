@@ -121,11 +121,14 @@ export class VehicleRepository {
    * @returns
    */
   async findByRendszam(rendszam: string): Promise<Vehicle | null> {
+    // Kötőjel escape-elése. Duplán kell exceape-elni, mert az első a regex miatt kell.
+    const escapedRendszam = rendszam.replace(/-/g, ' ');
+
     try {
       const rawRecords = (await this.redis.call(
         'FT.SEARCH',
         'vehicleIdx',
-        `@rendszam:${rendszam}`,
+        `@rendszam:${escapedRendszam}`,
       )) as any[];
 
       if (rawRecords.length === 1) {
