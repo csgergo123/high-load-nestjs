@@ -89,16 +89,34 @@ services:
       - redis-stack
     network_mode: "host"
 
+  api-6:
+    image: csipkes-gergo-nestjs-vehicle-register:latest
+    environment:
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      PORT: 8086
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 1G
+    depends_on:
+      - redis-stack
+    network_mode: "host"
+
   redis-stack:
     image: redis/redis-stack:latest
     deploy:
       resources:
         limits:
-          cpus: "1"
-          memory: 2G
+          cpus: "0.5"
+          memory: 1G
         reservations:
-          cpus: "1"
-          memory: 2G
+          cpus: "0.5"
+          memory: 1G
     network_mode: "host"
 
   nginx:
